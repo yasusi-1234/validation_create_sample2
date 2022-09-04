@@ -27,10 +27,11 @@ public class SampleController {
     @PostMapping("/complete")
     public String postSample(@Validated @ModelAttribute SampleForm form,
                              BindingResult result) {
+        // あまり意識していなかったが BindingResultのターゲットがSampleFormになっているという事
+        System.out.println("result.ObjectName: " + result.getObjectName());
 
         checkItemsAndCategories(form, result);
 
-        System.out.println("result.ObjectName: " + result.getObjectName());
         System.out.println(result.getErrorCount());
 
         result.getFieldErrors().forEach(fieldError -> System.out.println(fieldError.getField()));
@@ -55,6 +56,7 @@ public class SampleController {
         System.out.println("result.ObjectName: " + result.getObjectName());
         System.out.println(result.getErrorCount());
 
+        // エラーになっているsampleFormのフィールド情報を確認
         result.getFieldErrors().forEach(fieldError -> System.out.println(fieldError.getField()));
         if(result.hasErrors()) {
             return "/index2";
@@ -68,14 +70,16 @@ public class SampleController {
 
         for (int i = 0; i < form.getItems().length; i++) {
             if(!StringUtils.hasText(items[i]) && StringUtils.hasText(categories[i])){
-                result.addError(new FieldError(result.getObjectName(),"items[" + i + "]", "項目が空"));
+                // result.addErrorでエラー情報を追加するっぽい
+                // new Field(対象のForm名、 field名, メッセージ設定) といった感じになっているっぽい
+                result.addError(new FieldError(result.getObjectName(),"items[" + i + "]", "項目" + (i + 1) + "が空でっせ"));
             }else if (StringUtils.hasText(items[i]) && !StringUtils.hasText(categories[i])){
-                result.addError(new FieldError(result.getObjectName(),"categories[" + i + "]", "カテゴリーが空"));
+                result.addError(new FieldError(result.getObjectName(),"categories[" + i + "]", "カテゴリー" + (i + 1) + "が空でっせ"));
             }
         }
 
         // おふざけサンプル これは一応登録される なのでバインディングリザルト側？でabcのフィールドがあるかはチェックされていない
-//        result.addError(new FieldError(result.getObjectName(), "abc", "うんこ"));
+//        result.addError(new FieldError(result.getObjectName(), "abc", "Hoge"));
     }
 
     private void checkItemsAndCategories2(SampleForm2 form, BindingResult result) {
@@ -91,7 +95,7 @@ public class SampleController {
         }
 
         // おふざけサンプル これは一応登録される なのでバインディングリザルト側？でabcのフィールドがあるかはチェックされていない
-//        result.addError(new FieldError(result.getObjectName(), "abc", "うんこ"));
+//        result.addError(new FieldError(result.getObjectName(), "abc", "Hoge"));
     }
 
     private void createSampleForm(SampleForm form) {
